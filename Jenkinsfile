@@ -1,14 +1,6 @@
 pipeline {
     agent any
 
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'staging', 'prod'],
-            description: 'Select the deployment environment'
-        )
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -19,17 +11,15 @@ pipeline {
         stage('Build') {
             steps {
                 bat 'python -m py_compile app.py'
+                sleep time: 20, unit: 'SECONDS'
+                milestone 1
             }
         }
 
         stage('Deploy') {
             steps {
-                input(
-                    message: "Approve deployment to ${params.ENVIRONMENT}?",
-                    ok: 'Go'
-                )
-
-                bat 'python app.py'
+                milestone 2
+                echo 'Deploying application'
             }
         }
     }
